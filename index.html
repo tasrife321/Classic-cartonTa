@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Classic Cartoons</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { text-align: center; }
+    .filters { margin-bottom: 20px; text-align: center; }
+    .video-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .video-card { background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 0 5px #ccc; }
+    .meta { margin-top: 10px; font-size: 14px; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>Classic Cartoon Videos</h1>
+
+  <div class="filters">
+    <input type="text" id="search" placeholder="Search by title..." oninput="filterVideos()">
+    <select id="category" onchange="filterVideos()">
+      <option value="">All Categories</option>
+      <option value="Popeye cartoon">Popeye cartoon</option>
+      <option value="Tom & Jerry">Tom & Jerry</option>
+      <option value="Looney tunes">Looney tunes</option>
+      <option value="Fox cartoon">Fox cartoon</option>
+    </select>
+    <select id="language" onchange="filterVideos()">
+      <option value="">All Languages</option>
+      <option value="English">English</option>
+      <option value="Hindi">Hindi</option>
+      <option value="Unknown">Unknown</option>
+    </select>
+  </div>
+
+  <div class="video-grid" id="videoList"></div>
+
+  <script>
+    async function loadVideos() {
+      const res = await fetch('videos.json');
+      const data = await res.json();
+      const container = document.getElementById('videoList');
+      container.innerHTML = '';
+
+      data.forEach(video => {
+        const div = document.createElement('div');
+        div.className = 'video-card';
+        div.dataset.title = video.title.toLowerCase();
+        div.dataset.category = video.category;
+        div.dataset.language = video.language;
+
+        div.innerHTML = `
+          <video controls width="100%" src="${video.link}"></video>
+          <div class="meta">
+            <strong>${video.title}</strong><br>
+            Language: ${video.language} | Rating: ${video.rating} ⭐<br>
+            Category: ${video.category}
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    function filterVideos() {
+      const search = document.getElementById('search').value.toLowerCase();
+      const category = document.getElementById('category').value;
+      const language = document.getElementById('language').value;
+      const cards = document.querySelectorAll('.video-card');
+
+      cards.forEach(card => {
+        const matchesSearch = card.dataset.title.includes(search);
+        const matchesCategory = !category || card.dataset.category === category;
+        const matchesLanguage = !language || card.dataset.language === language;
+
+        card.style.display = (matchesSearch && matchesCategory && matchesLanguage) ? 'block' : 'none';
+      });
+    }
+
+    loadVideos();
+  </script>
+</body>
+</html>
